@@ -1,13 +1,13 @@
 import { roleLabels, type Role } from '@bloom/shared';
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from '@tanstack/react-router';
-import { House, LogOut, Users, type LucideIcon } from 'lucide-react';
+import { Download, House, LogOut, Users, type LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../components/ui/button';
 import { logout } from '../features/auth/api';
 import { useSession } from '../features/auth/session-store';
 
 interface NavItem {
-  to: '/inicio' | '/usuarios';
+  to: '/inicio' | '/usuarios' | '/importacion';
   label: string;
   icon: LucideIcon;
   roles: Role[];
@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { to: '/inicio', label: 'Inicio', icon: House, roles: ['ADMIN', 'TRAINER', 'CLIENT'] },
   { to: '/usuarios', label: 'Usuarios', icon: Users, roles: ['ADMIN'] },
   { to: '/usuarios', label: 'Clientes', icon: Users, roles: ['TRAINER'] },
+  { to: '/importacion', label: 'Importación', icon: Download, roles: ['ADMIN'] },
 ];
 
 export const Route = createFileRoute('/_app')({

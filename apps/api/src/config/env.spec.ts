@@ -34,4 +34,23 @@ describe('validateEnv', () => {
       /JWT_ACCESS_SECRET/,
     );
   });
+
+  it('AC-002-06: usa el proveedor de socios simulado por defecto', () => {
+    const env = validateEnv(valid);
+    expect(env.MEMBERS_PROVIDER).toBe('mock');
+    expect(env.MOCK_MEMBERS_COUNT).toBe(30);
+  });
+
+  it('exige la URL y la clave de TIMP cuando se elige ese proveedor', () => {
+    expect(() =>
+      validateEnv({ ...valid, MEMBERS_PROVIDER: 'timp', TIMP_API_URL: '', TIMP_API_KEY: '' }),
+    ).toThrow(/TIMP_API_URL[\s\S]*TIMP_API_KEY/);
+    const env = validateEnv({
+      ...valid,
+      MEMBERS_PROVIDER: 'timp',
+      TIMP_API_URL: 'https://timp.example.com/api',
+      TIMP_API_KEY: 'clave',
+    });
+    expect(env.MEMBERS_PROVIDER).toBe('timp');
+  });
 });

@@ -5,6 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import {
+  membersProviderLabel,
   Role,
   type ActivationLinkResponse,
   type CreateUserResponse,
@@ -96,6 +97,7 @@ export class UsersService {
     if (user.id === actor.id && input.role && input.role !== Role.ADMIN) {
       throw new UnprocessableEntityException('No puedes quitarte el rol de administrador.');
     }
+    assertProtectedFieldsUnchanged(user, input);
     try {
       const updated = await this.prisma.user.update({
         where: { id: user.id },
@@ -126,7 +128,10 @@ export class UsersService {
 
   async reactivate(actor: AuthUser, id: string): Promise<UserDto> {
     await this.findVisible(actor, id);
-    const updated = await this.prisma.user.update({ where: { id }, data: { isActive: true } });
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: { isActive: true, externalMissingSince: null },
+    });
     return toUserDto(updated);
   }
 
@@ -166,9 +171,26 @@ export function toUserDto(user: User): UserDto {
     alias: user.alias,
     role: user.role,
     status: userStatus(user),
+    externalSource: user.externalSource,
     lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
     createdAt: user.createdAt.toISOString(),
   };
+}
+
+/**
+ * AC-002-07 y AC-001-13: en un usuario importado, nombre, apellidos y correo se cambian en el proveedor.
+ * Repetir el valor que ya tiene no es un cambio, así el formulario puede enviar todos sus campos.
+ */
+function assertProtectedFieldsUnchanged(user: User, input: UpdateUserInput): void {
+  if (!user.externalSource) return;
+  const changed = (['firstName', 'lastName', 'email'] as const).some(
+    (field) => input[field] !== undefined && input[field] !== user[field],
+  );
+  if (changed) {
+    throw new UnprocessableEntityException(
+      `El nombre, los apellidos y el correo de este usuario se gestionan en ${membersProviderLabel(user.externalSource)}.`,
+    );
+  }
 }
 
 function statusFilter(status: UserStatus | undefined): Prisma.UserWhereInput {

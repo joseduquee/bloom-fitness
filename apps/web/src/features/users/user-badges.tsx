@@ -1,4 +1,10 @@
-import { roleLabels, userStatusLabels, type Role, type UserStatus } from '@bloom/shared';
+import {
+  membersProviderLabel,
+  roleLabels,
+  userStatusLabels,
+  type Role,
+  type UserStatus,
+} from '@bloom/shared';
 import { Badge, type BadgeTone } from '../../components/ui/badge';
 
 const statusTones: Record<UserStatus, BadgeTone> = {
@@ -13,4 +19,13 @@ export function StatusBadge({ status }: { status: UserStatus }) {
 
 export function RoleBadge({ role }: { role: Role }) {
   return <Badge tone={role === 'CLIENT' ? 'neutral' : 'brand'}>{roleLabels[role]}</Badge>;
+}
+
+/** Usuario importado de un proveedor externo (spec 002). */
+export function SourceBadge({ source }: { source: string }) {
+  return (
+    <span title={`Importado de ${membersProviderLabel(source)}`}>
+      <Badge tone="brand">Importado</Badge>
+    </span>
+  );
 }

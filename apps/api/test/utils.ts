@@ -5,11 +5,21 @@ import type { Role, SessionResponse } from '@bloom/shared';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.factory';
+import { MEMBERS_PROVIDER, type MembersProvider } from '../src/members/members-provider';
 import { PrismaService } from '../src/prisma/prisma.service';
 
-/** Arranca el API completo, igual que en producción, contra la base de datos de pruebas. */
-export async function createTestApp(): Promise<{ app: INestApplication; prisma: PrismaService }> {
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+/**
+ * Arranca el API completo, igual que en producción, contra la base de datos de pruebas.
+ * Se puede sustituir el proveedor de socios por uno controlado desde la prueba.
+ */
+export async function createTestApp(
+  options: { membersProvider?: MembersProvider } = {},
+): Promise<{ app: INestApplication; prisma: PrismaService }> {
+  let builder = Test.createTestingModule({ imports: [AppModule] });
+  if (options.membersProvider) {
+    builder = builder.overrideProvider(MEMBERS_PROVIDER).useValue(options.membersProvider);
+  }
+  const moduleRef = await builder.compile();
   const app = configureApp(moduleRef.createNestApplication({ bufferLogs: true }));
   await app.init();
   return { app, prisma: app.get(PrismaService) };
@@ -18,7 +28,7 @@ export async function createTestApp(): Promise<{ app: INestApplication; prisma: 
 /** Deja la base de datos vacía antes de cada prueba. */
 export async function resetDatabase(prisma: PrismaService): Promise<void> {
   await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE "activation_tokens", "refresh_tokens", "users", "centers" CASCADE',
+    'TRUNCATE TABLE "member_imports", "activation_tokens", "refresh_tokens", "users", "centers" CASCADE',
   );
 }
 
