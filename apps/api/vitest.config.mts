@@ -9,7 +9,7 @@ export default defineConfig({
   // SWC emite los metadatos de los decoradores que necesita la inyección de dependencias de Nest.
   plugins: [swc.vite({ module: { type: 'es6' } })],
   test: {
-    include: ['src/**/*.spec.ts', 'test/**/*.e2e-spec.ts'],
+    include: ['src/**/*.spec.ts', 'prisma/**/*.spec.ts', 'test/**/*.e2e-spec.ts'],
     environment: 'node',
     fileParallelism: false,
     coverage: {

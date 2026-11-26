@@ -4,6 +4,8 @@ import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from './auth/auth.module';
 import { validateEnv, type Env } from './config/env';
 import { HealthModule } from './health/health.module';
+import { ExercisesModule } from './exercises/exercises.module';
+import { MediaModule } from './media/media.module';
 import { MembersModule } from './members/members.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
@@ -31,6 +33,8 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     UsersModule,
     MembersModule,
+    MediaModule,
+    ExercisesModule,
   ],
 })
 export class AppModule {}

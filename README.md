@@ -48,6 +48,11 @@ pnpm dev
 
 Todos los datos son ficticios.
 
+### Ejercicios
+
+El `seed` carga un catálogo de 34 ejercicios sin GIF. Los GIF que se suben desde **Ejercicios** se guardan en
+`apps/api/uploads` (fuera del repositorio) y el API los sirve en `/media/`. En AWS irían a S3 detrás de CloudFront.
+
 ### Importación de socios
 
 Con `MEMBERS_PROVIDER=mock` (valor por defecto), el administrador puede importar socios ficticios desde

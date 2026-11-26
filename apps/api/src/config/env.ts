@@ -32,6 +32,10 @@ export const envSchema = z
     REFRESH_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(7),
     /** URL pública de la web; se usa para construir los enlaces de activación. */
     WEB_URL: z.url().default('http://localhost:5173'),
+    /** Carpeta local de los GIF de los ejercicios, relativa a apps/api (spec 003). */
+    MEDIA_DIR: z.string().min(1).default('uploads'),
+    /** URL pública desde la que se sirven los GIF. En AWS sería la de CloudFront. */
+    MEDIA_PUBLIC_URL: z.url().default('http://localhost:3000/media'),
     /** Proveedor de socios para la importación (spec 002). */
     MEMBERS_PROVIDER: z.enum(['mock', 'timp']).default('mock'),
     MOCK_MEMBERS_COUNT: z.coerce.number().int().min(0).max(1000).default(30),

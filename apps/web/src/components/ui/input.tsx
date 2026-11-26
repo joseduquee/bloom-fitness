@@ -1,4 +1,9 @@
-import { forwardRef, type InputHTMLAttributes, type SelectHTMLAttributes } from 'react';
+import {
+  forwardRef,
+  type InputHTMLAttributes,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from 'react';
 import { cn } from '../../lib/cn';
 
 const fieldClasses =
@@ -22,3 +27,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
     );
   },
 );
+
+export const Textarea = forwardRef<
+  HTMLTextAreaElement,
+  TextareaHTMLAttributes<HTMLTextAreaElement>
+>(function Textarea({ className, rows = 4, ...props }, ref) {
+  return <textarea ref={ref} rows={rows} className={cn(fieldClasses, className)} {...props} />;
+});

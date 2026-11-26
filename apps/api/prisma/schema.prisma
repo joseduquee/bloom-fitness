@@ -23,6 +23,7 @@ model Center {
 
   users         User[]
   memberImports MemberImport[]
+  exercises     Exercise[]
 
   @@map("centers")
 }
@@ -128,4 +129,60 @@ model MemberImport {
 
   @@index([centerId, startedAt])
   @@map("member_imports")
+}
+
+// ─── 003 · Ejercicios, plantillas y rutinas ────────────────────────────────────
+
+enum MuscleGroup {
+  CHEST
+  BACK
+  SHOULDERS
+  BICEPS
+  TRICEPS
+  CORE
+  QUADRICEPS
+  HAMSTRINGS
+  GLUTES
+  CALVES
+  FULL_BODY
+  CARDIO
+}
+
+enum Equipment {
+  BODYWEIGHT
+  BARBELL
+  DUMBBELL
+  KETTLEBELL
+  MACHINE
+  CABLE
+  BAND
+  OTHER
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+/// Ejercicio del catálogo del centro.
+model Exercise {
+  id            String      @id @default(uuid()) @db.Uuid
+  centerId      String      @db.Uuid
+  name          String
+  primaryMuscle MuscleGroup
+  equipment     Equipment
+  difficulty    Difficulty
+  instructions  String?
+  /// Clave del GIF en el almacenamiento de objetos.
+  mediaKey      String?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  center Center @relation(fields: [centerId], references: [id])
+
+  @@unique([centerId, name])
+  @@index([centerId, isActive])
+  @@map("exercises")
 }
