@@ -2,7 +2,7 @@
 # Imagen de producción del API. Se construye desde la raíz del monorepo:
 #   docker build -f apps/api/Dockerfile -t bloom-api .
 
-FROM node:22-alpine AS base
+FROM node:24-alpine AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
 RUN corepack enable
 WORKDIR /repo
@@ -21,7 +21,7 @@ RUN pnpm --filter @bloom/shared build \
  && pnpm --filter @bloom/api deploy --prod --legacy /out
 
 # ── Ejecución ─────────────────────────────────────────────────────────────────
-FROM node:22-alpine AS runtime
+FROM node:24-alpine AS runtime
 ENV NODE_ENV=production PORT=3000
 WORKDIR /app
 COPY --from=build --chown=node:node /out/package.json ./

@@ -1,12 +1,15 @@
-# Despliegue a producción al fusionar en main (spec 000, HU-000-3).
+# Despliegue a producción en AWS (spec 000, HU-000-3). Arquitectura objetivo de la memoria (4.2.2).
+#
+# En el TFT no se despliega en AWS para no generar costes: este workflow documenta cómo se haría
+# y solo se ejecuta manualmente (Actions → Deploy AWS → Run workflow). Para activarlo de forma
+# automática al fusionar en main, añade `push: branches: [main]` en `on`.
+#
 # Se autentica en AWS con OIDC: el repositorio no guarda claves de acceso (AC-000-08).
 # Los identificadores de la infraestructura se configuran como variables del entorno
 # "production" de GitHub (Settings → Environments → production → Variables).
-name: Deploy
+name: Deploy AWS
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:

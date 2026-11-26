@@ -4,20 +4,21 @@
   "description": "Bloom Fitness: seguimiento de entrenamientos personalizados en tiempo real",
   "packageManager": "pnpm@10.28.0",
   "engines": {
-    "node": ">=22.12"
+    "node": ">=24"
   },
   "scripts": {
-    "dev": "pnpm --filter @bloom/shared build && pnpm --parallel --filter @bloom/shared --filter @bloom/api --filter @bloom/web dev",
+    "dev": "pnpm build:shared && pnpm --parallel --filter @bloom/shared --filter @bloom/api --filter @bloom/web dev",
     "build": "pnpm -r build",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "typecheck": "pnpm build:shared && pnpm -r typecheck",
+    "test": "pnpm build:shared && pnpm -r test",
     "db:migrate": "pnpm --filter @bloom/api db:migrate",
     "db:seed": "pnpm --filter @bloom/api db:seed",
     "db:studio": "pnpm --filter @bloom/api db:studio",
-    "db:test:migrate": "pnpm --filter @bloom/api db:test:migrate"
+    "db:test:migrate": "pnpm --filter @bloom/api db:test:migrate",
+    "build:shared": "pnpm --filter @bloom/shared build"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
