@@ -145,6 +145,18 @@ export class UsersService {
     return { activationUrl: link.activationUrl, expiresAt: link.expiresAt.toISOString() };
   }
 
+  /**
+   * Comprueba que el usuario es un cliente visible para quien hace la petición (spec 003, rutinas).
+   * 404 si no existe o no se puede ver; 422 si no es cliente.
+   */
+  async getClient(actor: AuthUser, id: string): Promise<UserDto> {
+    const user = await this.findVisible(actor, id);
+    if (user.role !== Role.CLIENT) {
+      throw new UnprocessableEntityException('Las rutinas solo se asignan a clientes.');
+    }
+    return toUserDto(user);
+  }
+
   private async findVisible(actor: AuthUser, id: string): Promise<User> {
     const user = await this.prisma.user.findFirst({ where: { id, centerId: actor.centerId } });
     if (!user) throw new NotFoundException(NOT_FOUND);

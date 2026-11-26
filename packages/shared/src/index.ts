@@ -4,4 +4,6 @@ export * from './exercises';
 export * from './health';
 export * from './members';
 export * from './roles';
+export * from './routines';
+export * from './templates';
 export * from './users';

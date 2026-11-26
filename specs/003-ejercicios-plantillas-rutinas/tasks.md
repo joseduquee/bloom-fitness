@@ -18,10 +18,15 @@ Rama: `feature/RF-05-catalogo-ejercicios`
 
 Rama: `feature/RF-06-plantillas-rutinas`
 
-- [ ] T310 Esquemas zod de plantillas y rutinas.
-- [ ] T311 Modelos `WorkoutTemplate`, `TemplateExercise`, `Routine`, `RoutineTemplate` y migración.
-- [ ] T312 Plantillas: alta, edición con reordenación, duplicado (AC-003-07 a AC-003-10).
-- [ ] T313 Rutinas: alta, edición, activación exclusiva por cliente (AC-003-12, AC-003-13).
-- [ ] T314 Función de rotación de plantillas con pruebas unitarias (AC-003-14).
-- [ ] T315 Pantallas de plantillas y de rutinas en la ficha del cliente.
-- [ ] T316 Pruebas de integración y de componentes.
+- [x] T310 Esquemas zod de plantillas y rutinas.
+- [x] T311 Modelos `WorkoutTemplate`, `TemplateExercise`, `Routine`, `RoutineTemplate` y migración.
+- [x] T312 Plantillas: alta, edición con reordenación, duplicado (AC-003-07 a AC-003-10).
+- [x] T313 Rutinas: alta, edición, activación exclusiva por cliente (AC-003-12, AC-003-13).
+- [x] T314 Función de rotación de plantillas con pruebas unitarias (AC-003-14). Se conecta a la última sesión en la spec 004.
+- [x] T315 Pantallas de plantillas y de rutinas en la ficha del cliente.
+- [x] T316 Pruebas de integración y de componentes.
+
+## Pendiente para la spec 004
+
+- AC-003-11: al crear una sesión se copian los ejercicios de la plantilla; editar la plantilla después no la altera.
+- AC-003-14: la sesión guarda la posición de la rutina que se ha usado y la siguiente se calcula con `nextRoutinePosition`.

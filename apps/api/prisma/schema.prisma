@@ -24,6 +24,8 @@ model Center {
   users         User[]
   memberImports MemberImport[]
   exercises     Exercise[]
+  templates     WorkoutTemplate[]
+  routines      Routine[]
 
   @@map("centers")
 }
@@ -62,6 +64,7 @@ model User {
   refreshTokens        RefreshToken[]
   activationTokens     ActivationToken[]
   memberImports        MemberImport[]
+  routines             Routine[]         @relation("ClientRoutines")
 
   @@unique([centerId, externalSource, externalId])
   @@index([centerId, role])
@@ -180,9 +183,84 @@ model Exercise {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  center Center @relation(fields: [centerId], references: [id])
+  center        Center             @relation(fields: [centerId], references: [id])
+  templateItems TemplateExercise[]
 
   @@unique([centerId, name])
   @@index([centerId, isActive])
   @@map("exercises")
+}
+
+/// Plantilla: entrenamiento de un día reutilizable entre clientes.
+model WorkoutTemplate {
+  id        String   @id @default(uuid()) @db.Uuid
+  centerId  String   @db.Uuid
+  name      String
+  goal      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  center   Center             @relation(fields: [centerId], references: [id])
+  items    TemplateExercise[]
+  routines RoutineTemplate[]
+
+  @@index([centerId, name])
+  @@map("workout_templates")
+}
+
+/// Ejercicio dentro de una plantilla, con su posición.
+model TemplateExercise {
+  id           String   @id @default(uuid()) @db.Uuid
+  templateId   String   @db.Uuid
+  exerciseId   String   @db.Uuid
+  position     Int
+  sets         Int
+  reps         String
+  targetLoadKg Decimal? @db.Decimal(6, 2)
+  restSeconds  Int
+  notes        String?
+
+  template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  /// Restrict: un ejercicio usado en una plantilla no se puede borrar, solo desactivar.
+  exercise Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+
+  @@unique([templateId, position])
+  @@index([exerciseId])
+  @@map("template_exercises")
+}
+
+/// Rutina: plan de un cliente con una secuencia de plantillas. Solo una activa por cliente.
+model Routine {
+  id        String    @id @default(uuid()) @db.Uuid
+  centerId  String    @db.Uuid
+  clientId  String    @db.Uuid
+  name      String
+  goal      String?
+  startsOn  DateTime  @db.Date
+  endsOn    DateTime? @db.Date
+  isActive  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  center    Center            @relation(fields: [centerId], references: [id])
+  client    User              @relation("ClientRoutines", fields: [clientId], references: [id])
+  templates RoutineTemplate[]
+
+  @@index([clientId, isActive])
+  @@map("routines")
+}
+
+/// Plantilla en una posición de la rutina (día A, B, C…). Una plantilla puede repetirse.
+model RoutineTemplate {
+  routineId  String @db.Uuid
+  position   Int
+  templateId String @db.Uuid
+
+  routine  Routine         @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  /// Restrict: una plantilla usada en una rutina no se puede borrar.
+  template WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
+
+  @@id([routineId, position])
+  @@index([templateId])
+  @@map("routine_templates")
 }

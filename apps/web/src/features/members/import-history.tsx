@@ -1,6 +1,7 @@
 import { importStatusLabels, membersProviderLabel, type MemberImport } from '@bloom/shared';
 import { Badge } from '../../components/ui/badge';
-import { formatDateTime, formatDuration } from './format';
+import { formatDateTime } from '../../lib/dates';
+import { formatDuration } from './format';
 
 /** Últimas ejecuciones de la importación, de la más reciente a la más antigua. */
 export function ImportHistory({ items }: { items: MemberImport[] }) {
