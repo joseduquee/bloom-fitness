@@ -1,7 +1,7 @@
 import type { User } from '@bloom/shared';
 import { Link } from '@tanstack/react-router';
 import { Button } from '../../components/ui/button';
-import { RoleBadge, StatusBadge } from './user-badges';
+import { RoleBadge, SourceBadge, StatusBadge } from './user-badges';
 
 interface UsersTableProps {
   users: User[];
@@ -64,6 +64,11 @@ export function UsersTable({
                   {user.firstName} {user.lastName}
                 </Link>
                 {user.alias && <span className="ml-2 text-slate-500">({user.alias})</span>}
+                {user.externalSource && (
+                  <span className="ml-2">
+                    <SourceBadge source={user.externalSource} />
+                  </span>
+                )}
               </td>
               <td className="px-4 py-3 text-slate-600">{user.email}</td>
               <td className="px-4 py-3">

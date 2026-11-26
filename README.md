@@ -48,6 +48,12 @@ pnpm dev
 
 Todos los datos son ficticios.
 
+### Importación de socios
+
+Con `MEMBERS_PROVIDER=mock` (valor por defecto), el administrador puede importar socios ficticios desde
+**Importación**. Siempre son los mismos (`MOCK_MEMBERS_COUNT`, 30 por defecto) y usan el dominio reservado
+`socios.bloom.test`. El adaptador de TIMP (`MEMBERS_PROVIDER=timp`) está preparado, pero no se usa con datos reales.
+
 ## Comprobaciones (las mismas que ejecuta la CI)
 
 ```powershell

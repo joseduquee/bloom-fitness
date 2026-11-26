@@ -11,6 +11,11 @@ interface UserFormProps {
   submitting: boolean;
   /** Roles que se pueden asignar desde este formulario. */
   roles?: Role[];
+  /**
+   * Proveedor del que se importó el usuario. Si se indica, nombre, apellidos y correo
+   * se muestran como de solo lectura (AC-002-07).
+   */
+  lockedBy?: string;
   onSubmit: (values: CreateUserRequest) => void;
   onCancel?: () => void;
 }
@@ -21,6 +26,7 @@ export function UserForm({
   submitLabel,
   submitting,
   roles = [Role.CLIENT, Role.TRAINER, Role.ADMIN],
+  lockedBy,
   onSubmit,
   onCancel,
 }: UserFormProps) {
@@ -33,18 +39,26 @@ export function UserForm({
     defaultValues: { role: Role.CLIENT, alias: '', ...defaultValues },
   });
 
+  const locked = lockedBy !== undefined;
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+      {locked && (
+        <p className="rounded-lg bg-brand-50 p-3 text-sm text-brand-900">
+          Usuario importado de <strong>{lockedBy}</strong>. El nombre, los apellidos y el correo se
+          cambian allí y se actualizan en la siguiente importación.
+        </p>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Nombre" error={errors.firstName?.message}>
-          <Input autoComplete="given-name" {...register('firstName')} />
+          <Input autoComplete="given-name" readOnly={locked} {...register('firstName')} />
         </Field>
         <Field label="Apellidos" error={errors.lastName?.message}>
-          <Input autoComplete="family-name" {...register('lastName')} />
+          <Input autoComplete="family-name" readOnly={locked} {...register('lastName')} />
         </Field>
       </div>
       <Field label="Correo electrónico" error={errors.email?.message}>
-        <Input type="email" autoComplete="email" {...register('email')} />
+        <Input type="email" autoComplete="email" readOnly={locked} {...register('email')} />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field

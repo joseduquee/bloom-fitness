@@ -21,7 +21,8 @@ model Center {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users User[]
+  users         User[]
+  memberImports MemberImport[]
 
   @@map("centers")
 }
@@ -36,24 +37,32 @@ enum Role {
 
 /// Persona con acceso al sistema. Sin contraseña hasta que activa su cuenta.
 model User {
-  id           String    @id @default(uuid()) @db.Uuid
-  centerId     String    @db.Uuid
-  email        String    @unique
-  passwordHash String?
-  firstName    String
-  lastName     String
+  id                   String            @id @default(uuid()) @db.Uuid
+  centerId             String            @db.Uuid
+  email                String            @unique
+  passwordHash         String?
+  firstName            String
+  lastName             String
   /// Nombre corto que verá la pantalla de sala.
-  alias        String?
-  role         Role
-  isActive     Boolean   @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  alias                String?
+  role                 Role
+  isActive             Boolean           @default(true)
+  lastLoginAt          DateTime?
+  /// Proveedor del que se importó ('mock', 'timp'). Null si se dio de alta a mano (spec 002).
+  externalSource       String?
+  /// Identificador del socio en el proveedor.
+  externalId           String?
+  /// Fecha en que dejó de aparecer en el proveedor y la importación lo desactivó.
+  externalMissingSince DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
-  center           Center            @relation(fields: [centerId], references: [id])
-  refreshTokens    RefreshToken[]
-  activationTokens ActivationToken[]
+  center               Center            @relation(fields: [centerId], references: [id])
+  refreshTokens        RefreshToken[]
+  activationTokens     ActivationToken[]
+  memberImports        MemberImport[]
 
+  @@unique([centerId, externalSource, externalId])
   @@index([centerId, role])
   @@map("users")
 }
@@ -87,4 +96,36 @@ model ActivationToken {
 
   @@index([userId])
   @@map("activation_tokens")
+}
+
+// ─── 002 · Importación de socios ───────────────────────────────────────────────
+
+enum ImportStatus {
+  SUCCEEDED
+  FAILED
+}
+
+/// Registro de cada ejecución de la importación de socios.
+model MemberImport {
+  id               String       @id @default(uuid()) @db.Uuid
+  centerId         String       @db.Uuid
+  triggeredById    String?      @db.Uuid
+  source           String
+  status           ImportStatus
+  startedAt        DateTime
+  finishedAt       DateTime
+  createdCount     Int          @default(0)
+  updatedCount     Int          @default(0)
+  unchangedCount   Int          @default(0)
+  deactivatedCount Int          @default(0)
+  errorCount       Int          @default(0)
+  /// Lista de { externalId, message }. Se guardan como máximo 100.
+  errors           Json         @default("[]")
+  failureReason    String?
+
+  center      Center @relation(fields: [centerId], references: [id])
+  triggeredBy User?  @relation(fields: [triggeredById], references: [id], onDelete: SetNull)
+
+  @@index([centerId, startedAt])
+  @@map("member_imports")
 }

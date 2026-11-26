@@ -22,6 +22,8 @@ export const userSchema = z.object({
   alias: z.string().nullable(),
   role: roleSchema,
   status: userStatusSchema,
+  /** Proveedor del que se importó (`mock`, `timp`) o null si se dio de alta a mano (spec 002). */
+  externalSource: z.string().nullable(),
   lastLoginAt: z.iso.datetime().nullable(),
   createdAt: z.iso.datetime(),
 });

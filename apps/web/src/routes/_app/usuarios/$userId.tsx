@@ -1,4 +1,4 @@
-import { Role, type User } from '@bloom/shared';
+import { membersProviderLabel, Role, type User } from '@bloom/shared';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowLeft, Link2 } from 'lucide-react';
@@ -15,7 +15,7 @@ import {
   userQuery,
   useUpdateUser,
 } from '../../../features/users/api';
-import { RoleBadge, StatusBadge } from '../../../features/users/user-badges';
+import { RoleBadge, SourceBadge, StatusBadge } from '../../../features/users/user-badges';
 import { UserForm } from '../../../features/users/user-form';
 import { errorMessage } from '../../../lib/api';
 
@@ -80,6 +80,7 @@ function UserDetail({ user }: { user: User }) {
               submitLabel="Guardar cambios"
               submitting={update.isPending}
               roles={isSelf ? [Role.ADMIN] : undefined}
+              lockedBy={user.externalSource ? membersProviderLabel(user.externalSource) : undefined}
               defaultValues={{
                 email: user.email,
                 firstName: user.firstName,
@@ -104,8 +105,12 @@ function UserDetail({ user }: { user: User }) {
           <div className="flex flex-wrap gap-2">
             <RoleBadge role={user.role} />
             <StatusBadge status={user.status} />
+            {user.externalSource && <SourceBadge source={user.externalSource} />}
           </div>
           <Detail label="Alta" value={dateFormat.format(new Date(user.createdAt))} />
+          {user.externalSource && (
+            <Detail label="Origen" value={membersProviderLabel(user.externalSource)} />
+          )}
           <Detail
             label="Último acceso"
             value={user.lastLoginAt ? dateFormat.format(new Date(user.lastLoginAt)) : 'Nunca'}
