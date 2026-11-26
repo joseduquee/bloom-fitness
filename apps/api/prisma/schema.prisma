@@ -26,6 +26,7 @@ model Center {
   exercises     Exercise[]
   templates     WorkoutTemplate[]
   routines      Routine[]
+  sessions      TrainingSession[]
 
   @@map("centers")
 }
@@ -65,6 +66,8 @@ model User {
   activationTokens     ActivationToken[]
   memberImports        MemberImport[]
   routines             Routine[]         @relation("ClientRoutines")
+  trainedSessions      TrainingSession[] @relation("SessionTrainer")
+  attendances          SessionAttendee[]
 
   @@unique([centerId, externalSource, externalId])
   @@index([centerId, role])
@@ -263,4 +266,47 @@ model RoutineTemplate {
   @@id([routineId, position])
   @@index([templateId])
   @@map("routine_templates")
+}
+
+// ─── 004 · Sesiones en directo ─────────────────────────────────────────────────
+
+enum SessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  FINISHED
+  CANCELLED
+}
+
+/// Sesión de entrenamiento de un grupo pequeño. Se llama así para no confundirla con la sesión de usuario.
+model TrainingSession {
+  id        String        @id @default(uuid()) @db.Uuid
+  centerId  String        @db.Uuid
+  trainerId String        @db.Uuid
+  startsAt  DateTime
+  endsAt    DateTime
+  status    SessionStatus @default(SCHEDULED)
+  notes     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  center    Center            @relation(fields: [centerId], references: [id])
+  trainer   User              @relation("SessionTrainer", fields: [trainerId], references: [id])
+  attendees SessionAttendee[]
+
+  @@index([centerId, startsAt])
+  @@map("training_sessions")
+}
+
+/// Cliente apuntado a una sesión.
+model SessionAttendee {
+  id        String @id @default(uuid()) @db.Uuid
+  sessionId String @db.Uuid
+  clientId  String @db.Uuid
+
+  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  client  User            @relation(fields: [clientId], references: [id])
+
+  @@unique([sessionId, clientId])
+  @@index([clientId])
+  @@map("session_attendees")
 }

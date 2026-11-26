@@ -8,6 +8,7 @@ import { ExercisesModule } from './exercises/exercises.module';
 import { MediaModule } from './media/media.module';
 import { MembersModule } from './members/members.module';
 import { RoutinesModule } from './routines/routines.module';
+import { SessionsModule } from './sessions/sessions.module';
 import { TemplatesModule } from './templates/templates.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
@@ -39,6 +40,7 @@ import { UsersModule } from './users/users.module';
     ExercisesModule,
     TemplatesModule,
     RoutinesModule,
+    SessionsModule,
   ],
 })
 export class AppModule {}

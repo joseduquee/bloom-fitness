@@ -200,6 +200,47 @@ async function main(): Promise<void> {
     });
     console.log('Rutina de demostración asignada a cliente@bloom.test');
   }
+
+  // Sesiones de demostración en los próximos días (spec 004), solo si el centro no tiene ninguna.
+  if ((await prisma.trainingSession.count({ where: { centerId: center.id } })) === 0) {
+    const trainer = await prisma.user.findUniqueOrThrow({
+      where: { email: 'entrenador@bloom.test' },
+    });
+    const clients = await prisma.user.findMany({
+      where: {
+        email: {
+          in: [
+            'cliente@bloom.test',
+            'cliente2@bloom.test',
+            'cliente3@bloom.test',
+            'cliente4@bloom.test',
+          ],
+        },
+      },
+      orderBy: { email: 'asc' },
+    });
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const at = (days: number, hourUtc: number) =>
+      new Date(today.getTime() + days * 86_400_000 + hourUtc * 3_600_000);
+    const plan = [
+      { days: 0, hour: 17, clients: clients.slice(0, 4) },
+      { days: 1, hour: 8, clients: clients.slice(0, 2) },
+      { days: 2, hour: 17, clients: clients.slice(1, 4) },
+    ];
+    for (const item of plan) {
+      await prisma.trainingSession.create({
+        data: {
+          centerId: center.id,
+          trainerId: trainer.id,
+          startsAt: at(item.days, item.hour),
+          endsAt: at(item.days, item.hour + 1),
+          attendees: { create: item.clients.map((client) => ({ clientId: client.id })) },
+        },
+      });
+    }
+    console.log(`Sesiones de demostración: ${plan.length}`);
+  }
 }
 
 main()

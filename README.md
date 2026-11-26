@@ -48,10 +48,10 @@ pnpm dev
 
 Todos los datos son ficticios.
 
-### Ejercicios, plantillas y rutinas
+### Ejercicios, plantillas, rutinas y sesiones
 
-El `seed` carga un catálogo de 34 ejercicios sin GIF, tres plantillas (días A, B y C) y una rutina activa para
-`cliente@bloom.test`. Los GIF que se suben desde **Ejercicios** se guardan en
+El `seed` carga un catálogo de 34 ejercicios sin GIF, tres plantillas (días A, B y C), una rutina activa para
+`cliente@bloom.test` y tres sesiones en los próximos días si la agenda está vacía. Los GIF que se suben desde **Ejercicios** se guardan en
 `apps/api/uploads` (fuera del repositorio) y el API los sirve en `/media/`. En AWS irían a S3 detrás de CloudFront.
 
 ### Importación de socios
