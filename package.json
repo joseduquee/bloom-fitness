@@ -15,7 +15,7 @@
     "typecheck": "pnpm build:shared && pnpm -r typecheck",
     "test": "pnpm build:shared && pnpm -r test",
     "db:migrate": "pnpm --filter @bloom/api db:migrate",
-    "db:seed": "pnpm --filter @bloom/api db:seed",
+    "db:seed": "pnpm build:shared && pnpm --filter @bloom/api db:seed",
     "db:studio": "pnpm --filter @bloom/api db:studio",
     "db:test:migrate": "pnpm --filter @bloom/api db:test:migrate",
     "build:shared": "pnpm --filter @bloom/shared build"

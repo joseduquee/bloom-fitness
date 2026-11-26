@@ -33,17 +33,19 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const { retryOnUnauthorized = true, body, headers, ...init } = options;
 
+  // Un FormData (subida de archivos) se envía tal cual: el navegador pone el Content-Type con su separador.
+  const isForm = body instanceof FormData;
   const send = () => {
     const token = useSession.getState().accessToken;
     return fetch(`${API_URL}${path}`, {
       credentials: 'include',
       ...init,
       headers: {
-        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(body !== undefined && !isForm ? { 'Content-Type': 'application/json' } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: isForm ? body : body !== undefined ? JSON.stringify(body) : undefined,
     });
   };
 

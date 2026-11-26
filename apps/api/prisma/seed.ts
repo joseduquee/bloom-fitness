@@ -5,7 +5,9 @@
 import 'dotenv/config';
 import { hash } from '@node-rs/argon2';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { createExerciseRequestSchema } from '@bloom/shared';
 import { PrismaClient, type Role } from '../src/generated/prisma/client';
+import { seedExercises } from './seed-data/exercises';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -130,6 +132,17 @@ async function main(): Promise<void> {
   console.log(`  admin@bloom.test / ${DEMO_PASSWORDS.admin}`);
   console.log(`  entrenador@bloom.test / ${DEMO_PASSWORDS.trainer}`);
   console.log(`  cliente@bloom.test / ${DEMO_PASSWORDS.client}`);
+
+  // AC-003-06: catálogo inicial. Si un ejercicio ya existe no se toca, por si el entrenador lo ha editado.
+  for (const raw of seedExercises) {
+    const exercise = createExerciseRequestSchema.parse(raw);
+    await prisma.exercise.upsert({
+      where: { centerId_name: { centerId: center.id, name: exercise.name } },
+      update: {},
+      create: { centerId: center.id, ...exercise, instructions: exercise.instructions ?? null },
+    });
+  }
+  console.log(`Ejercicios de demostración: ${seedExercises.length}`);
 }
 
 main()

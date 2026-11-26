@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
+import { resolve } from 'node:path';
 import { Logger } from 'nestjs-pino';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import type { Env } from './config/env';
@@ -23,6 +24,20 @@ export function configureApp(app: INestApplication): INestApplication {
   app.enableCors({ origin: config.get('CORS_ORIGINS', { infer: true }), credentials: true });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableShutdownHooks();
+
+  // GIF de los ejercicios guardados en disco (spec 003). La web y las pantallas de sala los cargan desde
+  // otro origen, por eso se permite su uso entre orígenes. En AWS los serviría CloudFront.
+  (app as NestExpressApplication).useStaticAssets(
+    resolve(config.get('MEDIA_DIR', { infer: true })),
+    {
+      prefix: '/media/',
+      index: false,
+      setHeaders: (res) => {
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+      },
+    },
+  );
 
   const openApi = new DocumentBuilder()
     .setTitle('Bloom Fitness API')

@@ -9,21 +9,13 @@ import {
 } from '@bloom/shared';
 import { keepPreviousData, queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
+import { toSearchParams } from '../../lib/search-params';
 
 export const usersKeys = {
   all: ['users'] as const,
   list: (query: ListUsersQuery) => [...usersKeys.all, 'list', query] as const,
   detail: (id: string) => [...usersKeys.all, 'detail', id] as const,
 };
-
-function toSearchParams(query: ListUsersQuery): string {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(query)) {
-    if (value !== undefined && value !== null && value !== '') params.set(key, String(value));
-  }
-  const text = params.toString();
-  return text ? `?${text}` : '';
-}
 
 export const usersListQuery = (query: ListUsersQuery) =>
   queryOptions({

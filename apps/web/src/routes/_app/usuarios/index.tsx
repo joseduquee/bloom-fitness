@@ -10,14 +10,15 @@ import {
 } from '@bloom/shared';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight, Plus, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { useState } from 'react';
 import { z } from 'zod';
 import { Alert } from '../../../components/ui/alert';
 import { Button } from '../../../components/ui/button';
 import { Card } from '../../../components/ui/card';
 import { Dialog } from '../../../components/ui/dialog';
-import { Input, Select } from '../../../components/ui/input';
+import { Select } from '../../../components/ui/input';
+import { SearchBox } from '../../../components/search-box';
 import { Spinner } from '../../../components/ui/spinner';
 import { Page } from '../../../components/page';
 import { requireRole } from '../../../features/auth/require-role';
@@ -76,6 +77,7 @@ function UsersPage() {
       <Card>
         <div className="flex flex-wrap gap-3 border-b border-slate-200 p-4">
           <SearchBox
+            label="Buscar por nombre o correo"
             value={search.search ?? ''}
             onChange={(value) => updateSearch({ search: value || undefined })}
           />
@@ -181,34 +183,6 @@ function UsersPage() {
 
       <CreateUserDialog open={creating} onClose={() => setCreating(false)} />
     </Page>
-  );
-}
-
-/** Búsqueda con espera de 300 ms para no lanzar una petición por cada tecla. */
-function SearchBox({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  // El texto se inicializa desde la URL y a partir de ahí lo gobierna el propio campo.
-  const [text, setText] = useState(value);
-  useEffect(() => {
-    if (text === value) return;
-    const timer = setTimeout(() => onChange(text.trim()), 300);
-    return () => clearTimeout(timer);
-  }, [text, value, onChange]);
-
-  return (
-    <div className="relative min-w-56 flex-1">
-      <Search
-        className="pointer-events-none absolute top-3 left-3 size-4 text-slate-400"
-        aria-hidden="true"
-      />
-      <Input
-        type="search"
-        aria-label="Buscar por nombre o correo"
-        placeholder="Buscar por nombre o correo"
-        className="pl-9"
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-      />
-    </div>
   );
 }
 
