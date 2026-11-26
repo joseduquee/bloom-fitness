@@ -1,6 +1,7 @@
 import { roleLabels, type Role } from '@bloom/shared';
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from '@tanstack/react-router';
 import {
+  CalendarDays,
   ClipboardList,
   Download,
   Dumbbell,
@@ -15,7 +16,7 @@ import { logout } from '../features/auth/api';
 import { useSession } from '../features/auth/session-store';
 
 interface NavItem {
-  to: '/inicio' | '/usuarios' | '/ejercicios' | '/plantillas' | '/importacion';
+  to: '/inicio' | '/agenda' | '/usuarios' | '/ejercicios' | '/plantillas' | '/importacion';
   label: string;
   icon: LucideIcon;
   roles: Role[];
@@ -24,6 +25,7 @@ interface NavItem {
 /** Navegación según el rol (spec 001). Las iteraciones siguientes añaden entradas. */
 const navItems: NavItem[] = [
   { to: '/inicio', label: 'Inicio', icon: House, roles: ['ADMIN', 'TRAINER', 'CLIENT'] },
+  { to: '/agenda', label: 'Agenda', icon: CalendarDays, roles: ['ADMIN', 'TRAINER'] },
   { to: '/usuarios', label: 'Usuarios', icon: Users, roles: ['ADMIN'] },
   { to: '/usuarios', label: 'Clientes', icon: Users, roles: ['TRAINER'] },
   { to: '/ejercicios', label: 'Ejercicios', icon: Dumbbell, roles: ['ADMIN', 'TRAINER'] },

@@ -36,6 +36,8 @@ export const envSchema = z
     MEDIA_DIR: z.string().min(1).default('uploads'),
     /** URL pública desde la que se sirven los GIF. En AWS sería la de CloudFront. */
     MEDIA_PUBLIC_URL: z.url().default('http://localhost:3000/media'),
+    /** Asistentes máximos por sesión (spec 004, AC-004-01). */
+    SESSION_MAX_ATTENDEES: z.coerce.number().int().min(1).max(20).default(4),
     /** Proveedor de socios para la importación (spec 002). */
     MEMBERS_PROVIDER: z.enum(['mock', 'timp']).default('mock'),
     MOCK_MEMBERS_COUNT: z.coerce.number().int().min(0).max(1000).default(30),

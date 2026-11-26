@@ -5,5 +5,6 @@ export * from './health';
 export * from './members';
 export * from './roles';
 export * from './routines';
+export * from './sessions';
 export * from './templates';
 export * from './users';

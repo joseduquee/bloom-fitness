@@ -8,6 +8,7 @@ import {
   membersProviderLabel,
   Role,
   type ActivationLinkResponse,
+  type SessionPerson,
   type CreateUserResponse,
   type User as UserDto,
   type UserList,
@@ -155,6 +156,39 @@ export class UsersService {
       throw new UnprocessableEntityException('Las rutinas solo se asignan a clientes.');
     }
     return toUserDto(user);
+  }
+
+  /** Nombre y alias de las personas indicadas del centro, para mostrarlas en las sesiones (spec 004). */
+  async people(centerId: string, ids: string[]): Promise<Map<string, SessionPerson>> {
+    const users = await this.prisma.user.findMany({
+      where: { centerId, id: { in: [...new Set(ids)] } },
+      select: { id: true, firstName: true, lastName: true, alias: true },
+    });
+    return new Map(users.map((user) => [user.id, user]));
+  }
+
+  /** Los asistentes de una sesión deben ser clientes activos del centro (spec 004, AC-004-01). */
+  async assertActiveClients(centerId: string, ids: string[]): Promise<void> {
+    const clients = await this.prisma.user.findMany({
+      where: { centerId, id: { in: ids }, role: Role.CLIENT, isActive: true },
+      select: { id: true },
+    });
+    if (clients.length !== new Set(ids).size) {
+      throw new UnprocessableEntityException(
+        'Los asistentes deben ser clientes activos del centro.',
+      );
+    }
+  }
+
+  /** Quien dirige una sesión debe ser un entrenador o un administrador activo del centro. */
+  async assertTrainer(centerId: string, id: string): Promise<void> {
+    const trainer = await this.prisma.user.findFirst({
+      where: { centerId, id, role: { in: [Role.TRAINER, Role.ADMIN] }, isActive: true },
+      select: { id: true },
+    });
+    if (!trainer) {
+      throw new UnprocessableEntityException('El entrenador elegido no es válido.');
+    }
   }
 
   private async findVisible(actor: AuthUser, id: string): Promise<User> {
