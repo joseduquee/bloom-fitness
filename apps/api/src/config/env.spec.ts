@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { validateEnv } from './env';
 
-const valid = { DATABASE_URL: 'postgresql://bloom:bloom@localhost:5432/bloom' };
+const valid = {
+  DATABASE_URL: 'postgresql://bloom:bloom@localhost:5432/bloom',
+  JWT_ACCESS_SECRET: 'x'.repeat(32),
+};
 
 describe('validateEnv', () => {
   it('aplica valores por defecto a las variables opcionales', () => {
@@ -21,6 +24,14 @@ describe('validateEnv', () => {
   });
 
   it('rechaza una URL de base de datos que no es de PostgreSQL', () => {
-    expect(() => validateEnv({ DATABASE_URL: 'mysql://localhost/x' })).toThrow(/DATABASE_URL/);
+    expect(() => validateEnv({ ...valid, DATABASE_URL: 'mysql://localhost/x' })).toThrow(
+      /DATABASE_URL/,
+    );
+  });
+
+  it('exige un secreto JWT de al menos 32 caracteres', () => {
+    expect(() => validateEnv({ ...valid, JWT_ACCESS_SECRET: 'corto' })).toThrow(
+      /JWT_ACCESS_SECRET/,
+    );
   });
 });

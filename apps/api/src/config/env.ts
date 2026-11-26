@@ -19,6 +19,12 @@ export const envSchema = z.object({
     ),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   APP_VERSION: z.string().default('dev'),
+  /** Secreto para firmar los tokens de acceso (HS256). */
+  JWT_ACCESS_SECRET: z.string().min(32, 'Debe tener al menos 32 caracteres.'),
+  JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
+  REFRESH_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(7),
+  /** URL pública de la web; se usa para construir los enlaces de activación. */
+  WEB_URL: z.url().default('http://localhost:5173'),
 });
 
 export type Env = z.infer<typeof envSchema>;

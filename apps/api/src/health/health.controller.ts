@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiOkResponse, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger';
 import type { HealthResponse } from '@bloom/shared';
 import type { Response } from 'express';
+import { Public } from '../auth/decorators/public.decorator';
 import type { Env } from '../config/env';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -11,6 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
  * puede recibir tráfico (AC-000-07). Devuelve 503 si la base de datos no responde.
  */
 @ApiTags('salud')
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(
