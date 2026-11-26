@@ -14,12 +14,13 @@ bloom-fitness/
 └── docker-compose.yml  PostgreSQL local
 ```
 
-Gestor de paquetes: **pnpm workspaces**. Node 22 LTS.
+Gestor de paquetes: **pnpm workspaces**. Node 24 LTS.
 
 ## Decisiones técnicas
 
 | Decisión               | Elegida                         | Alternativas descartadas                   | Motivo |
 |------------------------|---------------------------------|--------------------------------------------|--------|
+| Gestor de paquetes     | pnpm (workspaces)               | npm workspaces; Yarn                       | Aislamiento estricto de dependencias, filtrado por grafo en CI y Docker, empaquetado con `pnpm deploy`. |
 | Lenguaje               | TypeScript en todo el sistema   | C#/.NET en el backend; JavaScript          | Un solo lenguaje permite compartir contratos entre API y web; tipado estricto. |
 | Framework del backend  | NestJS 12                       | Express o Fastify sin framework; ASP.NET Core; Spring Boot | Módulos, inyección de dependencias y soporte nativo de WebSocket; misma pila que el frontend. |
 | ORM                    | Prisma 7 con adaptador `pg`     | TypeORM; Drizzle; SQL a mano               | Esquema declarativo, migraciones versionadas y cliente tipado. |
