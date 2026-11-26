@@ -28,6 +28,8 @@ pnpm install
 docker compose up -d
 Copy-Item apps/api/.env.example apps/api/.env
 Copy-Item apps/web/.env.example apps/web/.env
+# Genera el secreto JWT y pégalo en JWT_ACCESS_SECRET de apps/api/.env
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 pnpm db:migrate
 pnpm db:seed
 pnpm dev
@@ -35,6 +37,16 @@ pnpm dev
 
 - Web: http://localhost:5173
 - API: http://localhost:3000/health · Documentación OpenAPI: http://localhost:3000/docs
+
+### Usuarios de demostración (solo en local, los crea `pnpm db:seed`)
+
+| Rol           | Correo                  | Contraseña          |
+| ------------- | ----------------------- | ------------------- |
+| Administrador | `admin@bloom.test`      | `BloomAdmin2026!`   |
+| Entrenador    | `entrenador@bloom.test` | `BloomCoach2026!`   |
+| Cliente       | `cliente@bloom.test`    | `BloomCliente2026!` |
+
+Todos los datos son ficticios.
 
 ## Comprobaciones (las mismas que ejecuta la CI)
 

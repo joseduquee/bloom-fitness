@@ -21,5 +21,70 @@ model Center {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  users User[]
+
   @@map("centers")
+}
+
+// ─── 001 · Autenticación y usuarios ────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  TRAINER
+  CLIENT
+}
+
+/// Persona con acceso al sistema. Sin contraseña hasta que activa su cuenta.
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  centerId     String    @db.Uuid
+  email        String    @unique
+  passwordHash String?
+  firstName    String
+  lastName     String
+  /// Nombre corto que verá la pantalla de sala.
+  alias        String?
+  role         Role
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  center           Center            @relation(fields: [centerId], references: [id])
+  refreshTokens    RefreshToken[]
+  activationTokens ActivationToken[]
+
+  @@index([centerId, role])
+  @@map("users")
+}
+
+/// Token de refresco opaco. Solo se guarda su hash SHA-256.
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  familyId  String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+/// Enlace de un solo uso para fijar la contraseña. Solo se guarda su hash SHA-256.
+model ActivationToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("activation_tokens")
 }
