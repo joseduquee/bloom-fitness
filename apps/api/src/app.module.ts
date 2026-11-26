@@ -1,0 +1,30 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { LoggerModule } from 'nestjs-pino';
+import { validateEnv, type Env } from './config/env';
+import { HealthModule } from './health/health.module';
+import { PrismaModule } from './prisma/prisma.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv, cache: true }),
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Env, true>) => ({
+        pinoHttp: {
+          level: config.get('LOG_LEVEL', { infer: true }),
+          transport:
+            config.get('NODE_ENV', { infer: true }) === 'development'
+              ? { target: 'pino-pretty', options: { singleLine: true } }
+              : undefined,
+          // Nunca se registran cabeceras con credenciales.
+          redact: ['req.headers.authorization', 'req.headers.cookie'],
+          autoLogging: { ignore: (req) => req.url === '/health' },
+        },
+      }),
+    }),
+    PrismaModule,
+    HealthModule,
+  ],
+})
+export class AppModule {}

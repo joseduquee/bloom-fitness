@@ -1,0 +1,31 @@
+{
+  "name": "bloom-fitness",
+  "private": true,
+  "description": "Bloom Fitness: seguimiento de entrenamientos personalizados en tiempo real",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @bloom/shared build && pnpm --parallel --filter @bloom/shared --filter @bloom/api --filter @bloom/web dev",
+    "build": "pnpm -r build",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:migrate": "pnpm --filter @bloom/api db:migrate",
+    "db:seed": "pnpm --filter @bloom/api db:seed",
+    "db:studio": "pnpm --filter @bloom/api db:studio",
+    "db:test:migrate": "pnpm --filter @bloom/api db:test:migrate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.74.0"
+  }
+}

@@ -1,0 +1,21 @@
+# Entorno local: PostgreSQL para desarrollo y otra base para las pruebas de integración.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: bloom
+      POSTGRES_PASSWORD: bloom
+      POSTGRES_DB: bloom
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U bloom']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db-data:

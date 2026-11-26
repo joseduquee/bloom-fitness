@@ -1,0 +1,5 @@
+# Claude Code
+
+Las instrucciones del proyecto están en AGENTS.md:
+
+@AGENTS.md

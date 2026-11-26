@@ -1,0 +1,25 @@
+// Modelo de datos de Bloom Fitness v1.0.
+// Cada iteración añade las entidades de su especificación (ver specs/).
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── 000 · Plataforma ──────────────────────────────────────────────────────────
+
+/// Centro deportivo. La v1.0 trabaja con un único centro.
+model Center {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  timezone  String   @default("Europe/Madrid")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("centers")
+}

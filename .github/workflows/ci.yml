@@ -1,0 +1,90 @@
+# Comprobaciones de cada pull request (spec 000, HU-000-2).
+# Si alguna falla, la regla de protección de `main` bloquea la fusión.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Formato, linter, tipos, pruebas y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bloom
+          POSTGRES_PASSWORD: bloom
+          POSTGRES_DB: bloom_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U bloom"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://bloom:bloom@localhost:5432/bloom_test
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Formato
+        run: pnpm format:check
+
+      - name: Linter
+        run: pnpm lint
+
+      - name: Compilar paquete compartido
+        run: pnpm --filter @bloom/shared build
+
+      - name: Comprobar tipos
+        run: pnpm typecheck
+
+      - name: Aplicar migraciones a la base de pruebas
+        run: pnpm --filter @bloom/api db:deploy
+
+      - name: Pruebas con cobertura
+        run: |
+          pnpm --filter @bloom/shared test
+          pnpm --filter @bloom/web test
+          pnpm --filter @bloom/api test:cov
+
+      - name: Resumen de cobertura
+        if: always()
+        run: |
+          if [ -f apps/api/coverage/coverage-summary.json ]; then
+            node -e "const s=require('./apps/api/coverage/coverage-summary.json').total;console.log(['| Métrica | % |','|---|---|',...['lines','statements','functions','branches'].map(k=>'| '+k+' | '+s[k].pct+' |')].join('\n'))" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Compilar todo
+        run: pnpm build
+        env:
+          VITE_API_URL: https://api.example.invalid
+
+      - name: Guardar informe de cobertura
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cobertura-api
+          path: apps/api/coverage
+          if-no-files-found: ignore
