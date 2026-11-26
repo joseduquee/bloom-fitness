@@ -11,7 +11,7 @@ import { Spinner } from '../../components/ui/spinner';
 import { Page } from '../../components/page';
 import { requireRole } from '../../features/auth/require-role';
 import { memberImportsQuery, useRunImport } from '../../features/members/api';
-import { formatDateTime } from '../../features/members/format';
+import { formatDateTime } from '../../lib/dates';
 import { ImportHistory } from '../../features/members/import-history';
 import { ImportSummary } from '../../features/members/import-summary';
 import { errorMessage } from '../../lib/api';

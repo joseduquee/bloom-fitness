@@ -99,6 +99,35 @@ personales. Las claves son UUID, así que no se pueden enumerar.
 
 Entrenadores y administradores gestionan el catálogo, que es común a todo el centro.
 
+## API de plantillas y rutinas (PR B)
+
+| Método y ruta                          | Acceso         | Descripción |
+|----------------------------------------|----------------|-------------|
+| `GET /templates`                       | ADMIN, TRAINER | Listado con búsqueda y número de ejercicios |
+| `GET /templates/:id`                   | ADMIN, TRAINER | Detalle con los ejercicios en orden |
+| `POST /templates`                      | ADMIN, TRAINER | Alta (201) |
+| `PUT /templates/:id`                   | ADMIN, TRAINER | Sustituye datos y lista de ejercicios: así se reordena, añade y quita (AC-003-09) |
+| `POST /templates/:id/duplicate`        | ADMIN, TRAINER | Copia con el sufijo «(copia)» (AC-003-10) |
+| `DELETE /templates/:id`                | ADMIN, TRAINER | 204; 409 si alguna rutina la usa |
+| `GET /clients/:clientId/routines`      | ADMIN, TRAINER | Rutinas del cliente, la activa primero |
+| `POST /clients/:clientId/routines`     | ADMIN, TRAINER | Alta; `activate` (por defecto `true`) desactiva la anterior (AC-003-13) |
+| `GET /routines/:id`, `PUT /routines/:id` | ADMIN, TRAINER | Detalle y edición |
+| `POST /routines/:id/activate`, `/deactivate` | ADMIN, TRAINER | Activación exclusiva por cliente |
+
+Reglas:
+
+- Una plantilla solo admite ejercicios del centro. Uno desactivado se rechaza (422) salvo que la plantilla ya lo
+  tuviera: así una plantilla antigua se puede seguir editando (AC-003-04).
+- Las claves foráneas usan `Restrict`: un ejercicio usado en una plantilla no se borra (solo se desactiva) y una
+  plantilla usada en una rutina no se puede eliminar (409).
+- La activación exclusiva se hace en una transacción: primero se desactivan las demás rutinas del cliente y después
+  se activa la elegida. No hay índice parcial en la base de datos porque Prisma no lo expresa en el esquema; con
+  un único API y transacciones es suficiente para el alcance del TFT.
+- Las fechas de la rutina son columnas `DATE` y viajan como `YYYY-MM-DD`, sin hora ni zona horaria.
+- Cada módulo usa los servicios de los demás y no sus tablas (constitución §2.4): las plantillas piden los
+  ejercicios a `ExercisesService` y las rutinas validan al cliente con `UsersService` y las plantillas con
+  `TemplatesService`.
+
 ## Variables de entorno nuevas
 
 | Variable           | Valor por defecto              | Notas |

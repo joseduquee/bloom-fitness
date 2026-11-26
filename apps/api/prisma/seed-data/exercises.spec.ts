@@ -12,3 +12,19 @@ describe('catálogo inicial de ejercicios', () => {
     expect(new Set(names).size).toBe(names.length);
   });
 });
+
+describe('plantillas de ejemplo', () => {
+  it('solo usan ejercicios del catálogo inicial y son válidas', async () => {
+    const { saveTemplateRequestSchema } = await import('@bloom/shared');
+    const { seedTemplates } = await import('./templates');
+    const names = new Set(seedExercises.map((exercise) => exercise.name));
+    for (const template of seedTemplates) {
+      for (const item of template.items) expect(names.has(item.exercise)).toBe(true);
+      const items = template.items.map(({ exercise: _exercise, ...rest }) => ({
+        ...rest,
+        exerciseId: '0f7e5c1a-5b6d-4c3e-9f2a-1b2c3d4e5f60',
+      }));
+      expect(saveTemplateRequestSchema.safeParse({ ...template, items }).success).toBe(true);
+    }
+  });
+});

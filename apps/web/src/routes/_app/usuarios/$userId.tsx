@@ -8,6 +8,7 @@ import { Card } from '../../../components/ui/card';
 import { Spinner } from '../../../components/ui/spinner';
 import { Page } from '../../../components/page';
 import { useSession } from '../../../features/auth/session-store';
+import { RoutinesSection } from '../../../features/routines/routines-section';
 import { ActivationLink } from '../../../features/users/activation-link';
 import {
   useActivationLink,
@@ -69,35 +70,40 @@ function UserDetail({ user }: { user: User }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-      <Card className="p-6">
-        <h2 className="mb-4 text-base font-semibold text-slate-900">Datos</h2>
-        {isAdmin ? (
-          <div className="space-y-4">
-            {update.isError && <Alert>{errorMessage(update.error)}</Alert>}
-            {update.isSuccess && <Alert tone="success">Cambios guardados.</Alert>}
-            <UserForm
-              key={user.id}
-              submitLabel="Guardar cambios"
-              submitting={update.isPending}
-              roles={isSelf ? [Role.ADMIN] : undefined}
-              lockedBy={user.externalSource ? membersProviderLabel(user.externalSource) : undefined}
-              defaultValues={{
-                email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                alias: user.alias ?? '',
-                role: user.role,
-              }}
-              onSubmit={(values) => update.mutate(values)}
-            />
-          </div>
-        ) : (
-          <dl className="grid gap-4 text-sm sm:grid-cols-2">
-            <Detail label="Correo" value={user.email} />
-            <Detail label="Alias" value={user.alias ?? '—'} />
-          </dl>
-        )}
-      </Card>
+      <div className="space-y-6">
+        <Card className="p-6">
+          <h2 className="mb-4 text-base font-semibold text-slate-900">Datos</h2>
+          {isAdmin ? (
+            <div className="space-y-4">
+              {update.isError && <Alert>{errorMessage(update.error)}</Alert>}
+              {update.isSuccess && <Alert tone="success">Cambios guardados.</Alert>}
+              <UserForm
+                key={user.id}
+                submitLabel="Guardar cambios"
+                submitting={update.isPending}
+                roles={isSelf ? [Role.ADMIN] : undefined}
+                lockedBy={
+                  user.externalSource ? membersProviderLabel(user.externalSource) : undefined
+                }
+                defaultValues={{
+                  email: user.email,
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  alias: user.alias ?? '',
+                  role: user.role,
+                }}
+                onSubmit={(values) => update.mutate(values)}
+              />
+            </div>
+          ) : (
+            <dl className="grid gap-4 text-sm sm:grid-cols-2">
+              <Detail label="Correo" value={user.email} />
+              <Detail label="Alias" value={user.alias ?? '—'} />
+            </dl>
+          )}
+        </Card>
+        {user.role === Role.CLIENT && <RoutinesSection clientId={user.id} />}
+      </div>
 
       <div className="space-y-6">
         <Card className="space-y-3 p-6 text-sm">

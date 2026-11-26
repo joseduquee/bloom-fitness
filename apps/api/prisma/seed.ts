@@ -5,9 +5,10 @@
 import 'dotenv/config';
 import { hash } from '@node-rs/argon2';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { createExerciseRequestSchema } from '@bloom/shared';
+import { createExerciseRequestSchema, saveTemplateRequestSchema } from '@bloom/shared';
 import { PrismaClient, type Role } from '../src/generated/prisma/client';
 import { seedExercises } from './seed-data/exercises';
+import { seedTemplates } from './seed-data/templates';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -143,6 +144,62 @@ async function main(): Promise<void> {
     });
   }
   console.log(`Ejercicios de demostración: ${seedExercises.length}`);
+
+  // Plantillas y una rutina activa para el cliente de demostración. Solo se crean si no existen.
+  const exercises = await prisma.exercise.findMany({ where: { centerId: center.id } });
+  const exerciseId = new Map(exercises.map((exercise) => [exercise.name, exercise.id]));
+  const templateIds: string[] = [];
+  for (const seed of seedTemplates) {
+    const existing = await prisma.workoutTemplate.findFirst({
+      where: { centerId: center.id, name: seed.name },
+    });
+    if (existing) {
+      templateIds.push(existing.id);
+      continue;
+    }
+    const template = saveTemplateRequestSchema.parse({
+      ...seed,
+      items: seed.items.map(({ exercise, ...item }) => ({
+        ...item,
+        exerciseId: exerciseId.get(exercise),
+      })),
+    });
+    const created = await prisma.workoutTemplate.create({
+      data: {
+        centerId: center.id,
+        name: template.name,
+        goal: template.goal ?? null,
+        items: {
+          create: template.items.map((item, position) => ({
+            ...item,
+            targetLoadKg: item.targetLoadKg ?? null,
+            notes: item.notes ?? null,
+            position,
+          })),
+        },
+      },
+    });
+    templateIds.push(created.id);
+  }
+  console.log(`Plantillas de demostración: ${seedTemplates.length}`);
+
+  const client = await prisma.user.findUniqueOrThrow({ where: { email: 'cliente@bloom.test' } });
+  if ((await prisma.routine.count({ where: { clientId: client.id } })) === 0) {
+    await prisma.routine.create({
+      data: {
+        centerId: center.id,
+        clientId: client.id,
+        name: 'Fuerza · bloque 1',
+        goal: 'Aprender la técnica de los básicos y ganar fuerza',
+        startsOn: new Date('2026-12-01T00:00:00.000Z'),
+        isActive: true,
+        templates: {
+          create: templateIds.map((templateId, position) => ({ templateId, position })),
+        },
+      },
+    });
+    console.log('Rutina de demostración asignada a cliente@bloom.test');
+  }
 }
 
 main()

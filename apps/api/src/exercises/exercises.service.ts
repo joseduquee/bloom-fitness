@@ -10,6 +10,7 @@ import {
   EXERCISE_MEDIA_TYPE,
   type Exercise as ExerciseDto,
   type ExerciseList,
+  type TemplateExerciseSummary,
   type createExerciseRequestSchema,
   type listExercisesQuerySchema,
   type updateExerciseRequestSchema,
@@ -121,6 +122,29 @@ export class ExercisesService {
     const updated = await this.prisma.exercise.update({ where: { id }, data: { mediaKey: null } });
     if (exercise.mediaKey) await this.storage.delete(exercise.mediaKey);
     return this.toDto(updated);
+  }
+
+  /**
+   * Resumen de los ejercicios indicados para mostrarlos dentro de las plantillas (spec 003).
+   * Incluye los desactivados: una plantilla que ya los usa los sigue mostrando (AC-003-04).
+   */
+  async summaries(centerId: string, ids: string[]): Promise<Map<string, TemplateExerciseSummary>> {
+    const exercises = await this.prisma.exercise.findMany({
+      where: { centerId, id: { in: [...new Set(ids)] } },
+    });
+    return new Map(
+      exercises.map((exercise) => [
+        exercise.id,
+        {
+          id: exercise.id,
+          name: exercise.name,
+          primaryMuscle: exercise.primaryMuscle,
+          equipment: exercise.equipment,
+          mediaUrl: exercise.mediaKey ? this.storage.publicUrl(exercise.mediaKey) : null,
+          isActive: exercise.isActive,
+        },
+      ]),
+    );
   }
 
   private async findInCenter(actor: AuthUser, id: string): Promise<Exercise> {
