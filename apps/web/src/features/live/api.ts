@@ -11,6 +11,7 @@ import {
 import { queryOptions, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
 import { sessionsKeys } from '../sessions/api';
+import { applyOptimistic } from './optimistic';
 
 export const liveKeys = {
   session: (id: string) => ['live-session', id] as const,
@@ -81,17 +82,35 @@ function request(id: string, action: LiveAction): { path: string; method: string
 
 /**
  * Una instancia por asistente (constitución §5.2): cada tarjeta tiene su propio estado de carga y error.
- * La respuesta sustituye la instantánea guardada.
+ * El cambio se ve al momento (AC-004-19) y después manda la instantánea del servidor, salvo que el
+ * canal en tiempo real ya haya traído una más reciente.
  */
 export function useLiveAction(sessionId: string) {
   const queryClient = useQueryClient();
+  const key = liveKeys.session(sessionId);
   return useMutation({
     mutationFn: (action: LiveAction) => {
       const { path, method, body } = request(sessionId, action);
       return apiFetch(path, liveSessionSchema, { method, body });
     },
+    onMutate: async (action) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<LiveSession>(key);
+      if (previous) queryClient.setQueryData(key, applyOptimistic(previous, action));
+      return { previous };
+    },
+    onError: (_error, _action, context) => {
+      // Se deshace solo si mientras tanto no ha llegado nada más reciente por el canal en tiempo real.
+      const current = queryClient.getQueryData<LiveSession>(key);
+      if (context?.previous && current?.revision === context.previous.revision) {
+        queryClient.setQueryData(key, context.previous);
+      }
+    },
     onSuccess: (snapshot: LiveSession) => {
-      queryClient.setQueryData(liveKeys.session(sessionId), snapshot);
+      const current = queryClient.getQueryData<LiveSession>(key);
+      if (!current || snapshot.revision >= current.revision) {
+        queryClient.setQueryData(key, snapshot);
+      }
       return queryClient.invalidateQueries({ queryKey: sessionsKeys.all });
     },
   });

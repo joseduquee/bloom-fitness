@@ -62,4 +62,4 @@ Los esquemas `LiveSessionSnapshot`, `SessionUpdatedEvent` y los DTO de las accio
 | SC-004-2 | Latencia p95 extremo a extremo (clic del entrenador → evento en pantalla) | < 1 s |
 | SC-004-3 | Tiempo de reconexión tras corte de red, con recuperación del estado    | < 5 s |
 
-Se medirán en producción (AWS) con Artillery y un script propio; los resultados se recogen en la memoria (4.5).
+Se miden con el script `pnpm --filter @bloom/api latency` (ver `docs/metricas/README.md`) en el entorno de demostración, ya que el despliegue en AWS queda como diseño objetivo. Los resultados se recogen en la memoria (4.5).

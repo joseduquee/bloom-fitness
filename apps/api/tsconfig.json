@@ -9,5 +9,5 @@
     "baseUrl": ".",
     "types": ["node"]
   },
-  "include": ["src", "test", "prisma", "prisma.config.ts", "vitest.config.mts"]
+  "include": ["src", "test", "prisma", "scripts", "prisma.config.ts", "vitest.config.mts"]
 }

@@ -31,6 +31,7 @@ import type {
   TrainingSession,
 } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { LiveEventsService } from './live-events.service';
 import { RoutinesService, type ActiveRoutine } from '../routines/routines.service';
 import { TemplatesService } from '../templates/templates.service';
 import { UsersService } from '../users/users.service';
@@ -71,6 +72,7 @@ export class LiveSessionService {
     private readonly routines: RoutinesService,
     private readonly templates: TemplatesService,
     private readonly exercises: ExercisesService,
+    private readonly events: LiveEventsService,
   ) {}
 
   async snapshot(actor: AuthUser, id: string): Promise<LiveSession> {
@@ -161,7 +163,7 @@ export class LiveSessionService {
         data: { status: 'IN_PROGRESS', startedAt: new Date(), revision: { increment: 1 } },
       });
     });
-    return this.snapshot(actor, id);
+    return this.publish(actor, id);
   }
 
   /** AC-004-04: cambia la plantilla de un asistente durante la sesión si aún no tiene series. */
@@ -195,7 +197,7 @@ export class LiveSessionService {
         },
       });
     });
-    return this.snapshot(actor, id);
+    return this.publish(actor, id);
   }
 
   /** AC-004-06. */
@@ -212,7 +214,7 @@ export class LiveSessionService {
         data: { attendance: input.attendance },
       }),
     );
-    return this.snapshot(actor, id);
+    return this.publish(actor, id);
   }
 
   /** AC-004-07: avanzar, volver u omitir el ejercicio en curso. */
@@ -236,7 +238,7 @@ export class LiveSessionService {
       const currentIndex = Math.min(Math.max(attendee.currentIndex + delta, 0), last);
       await tx.sessionAttendee.update({ where: { id: attendee.id }, data: { currentIndex } });
     });
-    return this.snapshot(actor, id);
+    return this.publish(actor, id);
   }
 
   /** AC-004-11 y AC-004-12: guarda la serie; si ya existía, la corrige. */
@@ -267,7 +269,7 @@ export class LiveSessionService {
         await tx.sessionExercise.update({ where: { id: exercise.id }, data: { skippedAt: null } });
       }
     });
-    return this.snapshot(actor, id);
+    return this.publish(actor, id);
   }
 
   /** AC-004-14: cambia la carga objetivo o sustituye el ejercicio solo en esta sesión. */
@@ -300,7 +302,7 @@ export class LiveSessionService {
       data.originalExerciseId = exercise.originalExerciseId ?? exercise.exerciseId;
     }
     await this.change(id, (tx) => tx.sessionExercise.update({ where: { id: exercise.id }, data }));
-    return this.snapshot(actor, id);
+    return this.publish(actor, id);
   }
 
   /** AC-004-08: la sesión termina y sus series quedan en el histórico. */
@@ -312,7 +314,14 @@ export class LiveSessionService {
         data: { status: 'FINISHED', finishedAt: new Date() },
       }),
     );
-    return this.snapshot(actor, id);
+    return this.publish(actor, id);
+  }
+
+  /** AC-004-15: tras cada cambio se difunde la instantánea a quien esté suscrito. */
+  private async publish(actor: AuthUser, id: string): Promise<LiveSession> {
+    const snapshot = await this.snapshot(actor, id);
+    this.events.publish(actor.centerId, snapshot);
+    return snapshot;
   }
 
   /** Posición que toca según la última sesión terminada del cliente con esta rutina. */

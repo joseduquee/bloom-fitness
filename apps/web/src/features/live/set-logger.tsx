@@ -33,11 +33,20 @@ interface SetLoggerProps {
   saving: boolean;
   /** Error del último intento. Los valores escritos se conservan para reintentar (AC-004-13). */
   error: string | null;
+  /** Valores del intento fallido, para no perderlos al deshacer el cambio optimista. */
+  failedValues?: LogSetRequest | null;
   onSave: (values: LogSetRequest) => void;
 }
 
 /** Registro de una serie del ejercicio en curso (AC-004-10, AC-004-11). */
-export function SetLogger({ exercise, setNumber, saving, error, onSave }: SetLoggerProps) {
+export function SetLogger({
+  exercise,
+  setNumber,
+  saving,
+  error,
+  failedValues,
+  onSave,
+}: SetLoggerProps) {
   const {
     register,
     handleSubmit,
@@ -45,7 +54,7 @@ export function SetLogger({ exercise, setNumber, saving, error, onSave }: SetLog
     formState: { errors },
   } = useForm<LogSetRequest>({
     resolver: zodResolver(logSetRequestSchema),
-    defaultValues: setDefaults(exercise, setNumber),
+    defaultValues: failedValues ?? setDefaults(exercise, setNumber),
   });
   const editing = exercise.logs.some((log) => log.setNumber === setNumber);
 

@@ -7,6 +7,7 @@ import { HealthModule } from './health/health.module';
 import { ExercisesModule } from './exercises/exercises.module';
 import { MediaModule } from './media/media.module';
 import { MembersModule } from './members/members.module';
+import { RealtimeModule } from './realtime/realtime.module';
 import { RoutinesModule } from './routines/routines.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { TemplatesModule } from './templates/templates.module';
@@ -41,6 +42,7 @@ import { UsersModule } from './users/users.module';
     TemplatesModule,
     RoutinesModule,
     SessionsModule,
+    RealtimeModule,
   ],
 })
 export class AppModule {}
