@@ -9,6 +9,7 @@ import { MediaModule } from './media/media.module';
 import { MembersModule } from './members/members.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { RoutinesModule } from './routines/routines.module';
+import { ScreensModule } from './screens/screens.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { TemplatesModule } from './templates/templates.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -42,6 +43,7 @@ import { UsersModule } from './users/users.module';
     TemplatesModule,
     RoutinesModule,
     SessionsModule,
+    ScreensModule,
     RealtimeModule,
   ],
 })

@@ -27,6 +27,7 @@ model Center {
   templates     WorkoutTemplate[]
   routines      Routine[]
   sessions      TrainingSession[]
+  screens       Screen[]
 
   @@map("centers")
 }
@@ -368,4 +369,40 @@ model SetLog {
 
   @@unique([sessionExerciseId, setNumber])
   @@map("set_logs")
+}
+
+// ─── 005 · Pantallas de sala ───────────────────────────────────────────────────
+
+/// Televisor de la sala. Se empareja con un código y después se identifica con un token de dispositivo.
+model Screen {
+  id         String    @id @default(uuid()) @db.Uuid
+  centerId   String    @db.Uuid
+  name       String
+  /// Hash del token del dispositivo. Null si aún no se ha emparejado o se ha revocado.
+  tokenHash  String?   @unique
+  pairedAt   DateTime?
+  revokedAt  DateTime?
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  center       Center              @relation(fields: [centerId], references: [id])
+  pairingCodes ScreenPairingCode[]
+
+  @@index([centerId])
+  @@map("screens")
+}
+
+/// Código de emparejamiento: 10 minutos y un solo uso (AC-005-01). Se guarda su hash.
+model ScreenPairingCode {
+  id        String    @id @default(uuid()) @db.Uuid
+  screenId  String    @db.Uuid
+  codeHash  String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  screen Screen @relation(fields: [screenId], references: [id], onDelete: Cascade)
+
+  @@index([screenId])
+  @@map("screen_pairing_codes")
 }

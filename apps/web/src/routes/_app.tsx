@@ -7,6 +7,7 @@ import {
   Dumbbell,
   House,
   LogOut,
+  Tv,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -16,7 +17,14 @@ import { logout } from '../features/auth/api';
 import { useSession } from '../features/auth/session-store';
 
 interface NavItem {
-  to: '/inicio' | '/agenda' | '/usuarios' | '/ejercicios' | '/plantillas' | '/importacion';
+  to:
+    | '/inicio'
+    | '/agenda'
+    | '/usuarios'
+    | '/ejercicios'
+    | '/plantillas'
+    | '/pantallas'
+    | '/importacion';
   label: string;
   icon: LucideIcon;
   roles: Role[];
@@ -30,6 +38,7 @@ const navItems: NavItem[] = [
   { to: '/usuarios', label: 'Clientes', icon: Users, roles: ['TRAINER'] },
   { to: '/ejercicios', label: 'Ejercicios', icon: Dumbbell, roles: ['ADMIN', 'TRAINER'] },
   { to: '/plantillas', label: 'Plantillas', icon: ClipboardList, roles: ['ADMIN', 'TRAINER'] },
+  { to: '/pantallas', label: 'Pantallas', icon: Tv, roles: ['ADMIN'] },
   { to: '/importacion', label: 'Importación', icon: Download, roles: ['ADMIN'] },
 ];
 

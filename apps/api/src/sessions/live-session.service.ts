@@ -10,10 +10,12 @@ import {
   nextRoutinePosition,
   Role,
   routineDayLabel,
+  toScreenSession,
   type adjustExerciseRequestSchema,
   type LiveSession,
   type logSetRequestSchema,
   type navigateRequestSchema,
+  type ScreenSession,
   type SessionPerson,
   type setAttendanceRequestSchema,
   type StartPlan,
@@ -77,6 +79,18 @@ export class LiveSessionService {
 
   async snapshot(actor: AuthUser, id: string): Promise<LiveSession> {
     return this.toSnapshot(actor.centerId, await this.load(actor.centerId, id));
+  }
+
+  /** Sesiones en curso del centro vistas por una pantalla de sala (spec 005, AC-005-06). */
+  async screenSessions(centerId: string): Promise<ScreenSession[]> {
+    const sessions = await this.prisma.trainingSession.findMany({
+      where: { centerId, status: 'IN_PROGRESS' },
+      orderBy: { startedAt: 'asc' },
+      include: fullInclude,
+    });
+    return Promise.all(
+      sessions.map(async (session) => toScreenSession(await this.toSnapshot(centerId, session))),
+    );
   }
 
   /** AC-004-04 y AC-003-14: plantilla que toca a cada asistente según su rutina activa. */
