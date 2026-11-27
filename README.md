@@ -54,6 +54,12 @@ El `seed` carga un catálogo de 34 ejercicios sin GIF, tres plantillas (días A,
 `cliente@bloom.test` y tres sesiones en los próximos días si la agenda está vacía. Los GIF que se suben desde **Ejercicios** se guardan en
 `apps/api/uploads` (fuera del repositorio) y el API los sirve en `/media/`. En AWS irían a S3 detrás de CloudFront.
 
+### Pantallas de sala
+
+El administrador da de alta una pantalla en **Pantallas** y obtiene un código. En el televisor se abre
+`http://localhost:5173/tv` (o la dirección de la web) y se introduce el código. Para probarlo en el mismo
+ordenador, abre `/tv` en otra ventana.
+
 ### Medir la latencia del tiempo real
 
 Con el API arrancado: `pnpm --filter @bloom/api latency`. Qué mide y cómo leer el resultado en

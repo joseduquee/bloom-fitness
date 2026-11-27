@@ -17,6 +17,8 @@ export const LiveEvents = {
   /** Proyección para las pantallas de sala, sin datos personales (AC-004-18). */
   screenSubscribe: 'screen:subscribe',
   screenSession: 'screen:session',
+  /** Estado inicial de una pantalla emparejada al conectarse (spec 005). */
+  screenState: 'screen:state',
 } as const;
 
 export const subscribeRequestSchema = z.object({ sessionId: z.uuid() });
