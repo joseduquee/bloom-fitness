@@ -28,6 +28,16 @@ export interface TemplateSummary {
   exerciseCount: number;
 }
 
+/** Plantilla lista para copiarla en una sesión (spec 004). */
+export interface TemplateCopy {
+  id: string;
+  name: string;
+  items: Pick<
+    TemplateExercise,
+    'position' | 'exerciseId' | 'sets' | 'reps' | 'targetLoadKg' | 'restSeconds' | 'notes'
+  >[];
+}
+
 const NOT_FOUND = 'Plantilla no encontrada.';
 const COPY_SUFFIX = ' (copia)';
 const NAME_MAX = 80;
@@ -161,6 +171,28 @@ export class TemplatesService {
         { id: template.id, name: template.name, exerciseCount: template._count.items },
       ]),
     );
+  }
+
+  /** AC-003-11: datos para copiar la plantilla en una sesión. La copia no cambia si después se edita. */
+  async forCopy(centerId: string, id: string): Promise<TemplateCopy> {
+    const template = await this.prisma.workoutTemplate.findFirst({
+      where: { id, centerId },
+      include: { items: { orderBy: { position: 'asc' } } },
+    });
+    if (!template) throw new UnprocessableEntityException('La plantilla no existe.');
+    return {
+      id: template.id,
+      name: template.name,
+      items: template.items.map((item) => ({
+        position: item.position,
+        exerciseId: item.exerciseId,
+        sets: item.sets,
+        reps: item.reps,
+        targetLoadKg: item.targetLoadKg,
+        restSeconds: item.restSeconds,
+        notes: item.notes,
+      })),
+    };
   }
 
   private async findInCenter(actor: AuthUser, id: string): Promise<TemplateWithItems> {

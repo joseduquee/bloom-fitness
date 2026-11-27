@@ -28,7 +28,7 @@ export async function createTestApp(
 /** Deja la base de datos vacía antes de cada prueba. */
 export async function resetDatabase(prisma: PrismaService): Promise<void> {
   await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE "session_attendees", "training_sessions", "routine_templates", "routines", "template_exercises", "workout_templates", "exercises", "member_imports", "activation_tokens", "refresh_tokens", "users", "centers" CASCADE',
+    'TRUNCATE TABLE "set_logs", "session_exercises", "session_attendees", "training_sessions", "routine_templates", "routines", "template_exercises", "workout_templates", "exercises", "member_imports", "activation_tokens", "refresh_tokens", "users", "centers" CASCADE',
   );
 }
 

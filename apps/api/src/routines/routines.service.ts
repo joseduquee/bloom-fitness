@@ -16,6 +16,12 @@ type SaveRoutineInput = z.output<typeof saveRoutineRequestSchema>;
 type CreateRoutineInput = z.output<typeof createRoutineRequestSchema>;
 type RoutineWithTemplates = Routine & { templates: RoutineTemplate[] };
 
+export interface ActiveRoutine {
+  id: string;
+  name: string;
+  templates: { position: number; id: string; name: string }[];
+}
+
 const NOT_FOUND = 'Rutina no encontrada.';
 const withTemplates = { templates: { orderBy: { position: 'asc' } } } as const;
 
@@ -93,6 +99,31 @@ export class RoutinesService {
     await this.findVisible(actor, id);
     await this.prisma.routine.update({ where: { id }, data: { isActive: false } });
     return this.get(actor, id);
+  }
+
+  /**
+   * Rutina activa de un cliente con sus plantillas en orden, para proponer la siguiente al iniciar una
+   * sesión (spec 004, AC-004-04). Null si no tiene ninguna activa.
+   */
+  async activeForClient(centerId: string, clientId: string): Promise<ActiveRoutine | null> {
+    const routine = await this.prisma.routine.findFirst({
+      where: { centerId, clientId, isActive: true },
+      include: withTemplates,
+    });
+    if (!routine || routine.templates.length === 0) return null;
+    const templates = await this.templates.summaries(
+      centerId,
+      routine.templates.map((item) => item.templateId),
+    );
+    return {
+      id: routine.id,
+      name: routine.name,
+      templates: routine.templates.map((item) => ({
+        position: item.position,
+        id: item.templateId,
+        name: templates.get(item.templateId)?.name ?? '',
+      })),
+    };
   }
 
   /** La rutina debe ser del centro y su cliente, visible para quien pregunta. */
