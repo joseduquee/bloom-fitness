@@ -16,11 +16,11 @@ Rama: `feature/RF-08-planificacion-sesiones`
 
 Rama: `feature/RF-09-dirigir-sesion`
 
-- [ ] T410 Inicio de sesión con propuesta de plantilla por rotación (AC-004-04, AC-003-14) y copia (AC-004-05, AC-003-11).
-- [ ] T411 Asistencia, navegación entre ejercicios y omitidos (AC-004-06, AC-004-07).
-- [ ] T412 Registro y corrección de series (AC-004-10 a AC-004-12).
-- [ ] T413 Cambios sobre la marcha (AC-004-14) y finalización (AC-004-08).
-- [ ] T414 Panel del entrenador con reintento si falla la red (AC-004-13).
+- [x] T410 Inicio de sesión con propuesta de plantilla por rotación (AC-004-04, AC-003-14) y copia (AC-004-05, AC-003-11).
+- [x] T411 Asistencia, navegación entre ejercicios y omitidos (AC-004-06, AC-004-07).
+- [x] T412 Registro y corrección de series (AC-004-10 a AC-004-12).
+- [x] T413 Cambios sobre la marcha (AC-004-14) y finalización (AC-004-08).
+- [x] T414 Panel del entrenador con reintento si falla la red (AC-004-13).
 
 ## PR C · Tiempo real
 

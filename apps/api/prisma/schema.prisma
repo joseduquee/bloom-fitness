@@ -186,8 +186,9 @@ model Exercise {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
-  center        Center             @relation(fields: [centerId], references: [id])
-  templateItems TemplateExercise[]
+  center           Center             @relation(fields: [centerId], references: [id])
+  templateItems    TemplateExercise[]
+  sessionExercises SessionExercise[]
 
   @@unique([centerId, name])
   @@index([centerId, isActive])
@@ -286,6 +287,10 @@ model TrainingSession {
   endsAt    DateTime
   status    SessionStatus @default(SCHEDULED)
   notes     String?
+  startedAt  DateTime?
+  finishedAt DateTime?
+  /// Crece con cada cambio durante la sesión, para ordenar los eventos en tiempo real.
+  revision   Int          @default(0)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
@@ -297,16 +302,70 @@ model TrainingSession {
   @@map("training_sessions")
 }
 
-/// Cliente apuntado a una sesión.
-model SessionAttendee {
-  id        String @id @default(uuid()) @db.Uuid
-  sessionId String @db.Uuid
-  clientId  String @db.Uuid
+enum Attendance {
+  PRESENT
+  ABSENT
+}
 
-  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  client  User            @relation(fields: [clientId], references: [id])
+/// Cliente apuntado a una sesión. Al iniciarla guarda la plantilla que hace y una copia de sus ejercicios.
+model SessionAttendee {
+  id              String     @id @default(uuid()) @db.Uuid
+  sessionId       String     @db.Uuid
+  clientId        String     @db.Uuid
+  attendance      Attendance @default(PRESENT)
+  /// Rutina y posición (día) de la que sale la plantilla, para la rotación (AC-003-14).
+  routineId       String?    @db.Uuid
+  routineName     String?
+  routinePosition Int?
+  /// Plantilla de origen y su nombre en el momento de iniciar (la copia no cambia si se edita).
+  templateId      String?    @db.Uuid
+  templateName    String?
+  currentIndex    Int        @default(0)
+
+  session   TrainingSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  client    User              @relation(fields: [clientId], references: [id])
+  exercises SessionExercise[]
 
   @@unique([sessionId, clientId])
   @@index([clientId])
   @@map("session_attendees")
+}
+
+/// Copia de un ejercicio de la plantilla para un asistente (AC-003-11, AC-004-05).
+model SessionExercise {
+  id                 String    @id @default(uuid()) @db.Uuid
+  attendeeId         String    @db.Uuid
+  position           Int
+  exerciseId         String    @db.Uuid
+  /// Ejercicio de la plantilla si se sustituyó durante la sesión (AC-004-14).
+  originalExerciseId String?   @db.Uuid
+  sets               Int
+  reps               String
+  targetLoadKg       Decimal?  @db.Decimal(6, 2)
+  restSeconds        Int
+  notes              String?
+  skippedAt          DateTime?
+
+  attendee SessionAttendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+  exercise Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  logs     SetLog[]
+
+  @@unique([attendeeId, position])
+  @@map("session_exercises")
+}
+
+/// Serie registrada. Única por asistente, ejercicio y número de serie (AC-004-12).
+model SetLog {
+  id                String   @id @default(uuid()) @db.Uuid
+  sessionExerciseId String   @db.Uuid
+  setNumber         Int
+  weightKg          Decimal  @db.Decimal(6, 2)
+  reps              Int
+  rpe               Int?
+  loggedAt          DateTime @default(now())
+
+  sessionExercise SessionExercise @relation(fields: [sessionExerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionExerciseId, setNumber])
+  @@map("set_logs")
 }

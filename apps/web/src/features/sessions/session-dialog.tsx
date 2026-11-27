@@ -1,5 +1,7 @@
 import { Role, sessionStatusLabels, type SessionPerson, type TrainingSession } from '@bloom/shared';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import { MonitorPlay } from 'lucide-react';
 import { Alert } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
 import { Dialog } from '../../components/ui/dialog';
@@ -64,6 +66,11 @@ export function SessionDialog({ session, defaultDay, maxAttendees, onClose }: Se
             Solo el entrenador asignado o un administrador puede modificarla.
           </p>
         )}
+        {session.status !== 'CANCELLED' && (
+          <div className="mt-4 flex justify-end">
+            <PanelLink session={session} />
+          </div>
+        )}
       </Dialog>
     );
   }
@@ -113,6 +120,11 @@ export function SessionDialog({ session, defaultDay, maxAttendees, onClose }: Se
         <Alert>{errorMessage(loadError)}</Alert>
       ) : (
         <div className="space-y-4">
+          {session && (
+            <div className="flex justify-end">
+              <PanelLink session={session} />
+            </div>
+          )}
           {save.isError && <Alert>{errorMessage(save.error)}</Alert>}
           {cancel.isError && <Alert>{errorMessage(cancel.error)}</Alert>}
           <SessionForm
@@ -141,6 +153,26 @@ export function SessionDialog({ session, defaultDay, maxAttendees, onClose }: Se
         </div>
       )}
     </Dialog>
+  );
+}
+
+/** Acceso al panel de la sesión: preparar e iniciar, dirigirla o ver el resumen. */
+function PanelLink({ session }: { session: TrainingSession }) {
+  const label =
+    session.status === 'SCHEDULED'
+      ? 'Preparar e iniciar'
+      : session.status === 'IN_PROGRESS'
+        ? 'Abrir el panel'
+        : 'Ver resumen';
+  return (
+    <Link
+      to="/sesiones/$sessionId"
+      params={{ sessionId: session.id }}
+      className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand-700 px-4 text-sm font-medium text-white hover:bg-brand-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700"
+    >
+      <MonitorPlay className="size-4" aria-hidden="true" />
+      {label}
+    </Link>
   );
 }
 
