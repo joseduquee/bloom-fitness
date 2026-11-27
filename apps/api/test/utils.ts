@@ -43,7 +43,7 @@ export async function createCenter(prisma: PrismaService, name = 'Centro de prue
 export async function createUser(
   prisma: PrismaService,
   centerId: string,
-  data: { email: string; role: Role; isActive?: boolean; withPassword?: boolean },
+  data: { email: string; role: Role; isActive?: boolean; withPassword?: boolean; alias?: string },
 ) {
   passwordHashCache ??= await hash(TEST_PASSWORD);
   return prisma.user.create({
@@ -52,6 +52,7 @@ export async function createUser(
       email: data.email,
       firstName: 'Nombre',
       lastName: data.email.split('@')[0] ?? 'Apellido',
+      alias: data.alias ?? null,
       role: data.role,
       isActive: data.isActive ?? true,
       passwordHash: data.withPassword === false ? null : passwordHashCache,

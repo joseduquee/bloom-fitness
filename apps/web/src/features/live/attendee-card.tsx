@@ -156,6 +156,11 @@ export function AttendeeCard({
                     ? errorMessage(mutation.error)
                     : null
                 }
+                failedSet={
+                  mutation.isError && mutation.variables?.type === 'logSet'
+                    ? { setNumber: mutation.variables.setNumber, values: mutation.variables.body }
+                    : null
+                }
                 onAction={(action, done) => run({ ...action, clientId } as LiveAction, done)}
                 onSetSaved={() => setSelectedSet(null)}
               />
@@ -252,6 +257,7 @@ function ActiveControls({
   catalog,
   saving,
   setError,
+  failedSet,
   onAction,
   onSetSaved,
 }: {
@@ -260,6 +266,7 @@ function ActiveControls({
   catalog: TemplateExerciseSummary[];
   saving: boolean;
   setError: string | null;
+  failedSet: { setNumber: number; values: LogSetRequest } | null;
   onAction: (action: AttendeeAction, done?: () => void) => void;
   onSetSaved: () => void;
 }) {
@@ -283,6 +290,7 @@ function ActiveControls({
           setNumber={setNumber}
           saving={saving}
           error={setError}
+          failedValues={failedSet?.setNumber === setNumber ? failedSet.values : null}
           onSave={(body) =>
             onAction({ type: 'logSet', position: current.position, setNumber, body }, onSetSaved)
           }

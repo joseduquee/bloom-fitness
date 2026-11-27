@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import type { Env } from '../config/env';
+import { AccessTokenVerifier } from './access-token.verifier';
 import { ActivationTokensService } from './activation-tokens.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -28,10 +29,11 @@ import { RolesGuard } from './roles.guard';
     PasswordService,
     LoginAttemptsService,
     ActivationTokensService,
+    AccessTokenVerifier,
     // El orden importa: primero se autentica y después se comprueba el rol.
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
-  exports: [AuthService, PasswordService, ActivationTokensService, JwtModule],
+  exports: [AuthService, PasswordService, ActivationTokensService, AccessTokenVerifier, JwtModule],
 })
 export class AuthModule {}

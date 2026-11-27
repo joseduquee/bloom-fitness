@@ -3,6 +3,7 @@ export * from './errors';
 export * from './exercises';
 export * from './health';
 export * from './live';
+export * from './realtime';
 export * from './members';
 export * from './roles';
 export * from './routines';

@@ -3,6 +3,7 @@ import { ExercisesModule } from '../exercises/exercises.module';
 import { RoutinesModule } from '../routines/routines.module';
 import { TemplatesModule } from '../templates/templates.module';
 import { UsersModule } from '../users/users.module';
+import { LiveEventsService } from './live-events.service';
 import { LiveSessionController } from './live-session.controller';
 import { LiveSessionService } from './live-session.service';
 import { SessionsController } from './sessions.controller';
@@ -12,7 +13,7 @@ import { SessionsService } from './sessions.service';
 @Module({
   imports: [UsersModule, RoutinesModule, TemplatesModule, ExercisesModule],
   controllers: [SessionsController, LiveSessionController],
-  providers: [SessionsService, LiveSessionService],
-  exports: [SessionsService, LiveSessionService],
+  providers: [SessionsService, LiveSessionService, LiveEventsService],
+  exports: [SessionsService, LiveSessionService, LiveEventsService],
 })
 export class SessionsModule {}

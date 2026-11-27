@@ -26,7 +26,7 @@ Rama: `feature/RF-09-dirigir-sesion`
 
 Rama: `feature/RF-13-tiempo-real`
 
-- [ ] T420 Pasarela Socket.IO con autenticación y salas por centro (AC-004-16, AC-004-17).
-- [ ] T421 Difusión de `session:updated` e instantánea para pantallas sin datos personales (AC-004-15, AC-004-18).
-- [ ] T422 Actualización optimista en el panel (AC-004-19).
-- [ ] T423 Script de medición de latencia y reconexión (SC-004-1 a SC-004-3).
+- [x] T420 Pasarela Socket.IO con autenticación y salas por centro (AC-004-16, AC-004-17).
+- [x] T421 Difusión de `session:updated` e instantánea para pantallas sin datos personales (AC-004-15, AC-004-18).
+- [x] T422 Actualización optimista en el panel (AC-004-19).
+- [x] T423 Script de medición de latencia y reconexión (SC-004-1 a SC-004-3).

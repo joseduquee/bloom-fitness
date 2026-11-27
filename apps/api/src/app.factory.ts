@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import { Logger } from 'nestjs-pino';
 import { HttpExceptionFilter } from './common/http-exception.filter';
 import type { Env } from './config/env';
+import { LiveIoAdapter } from './realtime/live-io.adapter';
 
 /**
  * Configuración común de la aplicación. Se usa en `main.ts` y en las pruebas de integración,
@@ -22,6 +23,7 @@ export function configureApp(app: INestApplication): INestApplication {
   app.use(helmet());
   app.use(cookieParser());
   app.enableCors({ origin: config.get('CORS_ORIGINS', { infer: true }), credentials: true });
+  app.useWebSocketAdapter(new LiveIoAdapter(app, config.get('CORS_ORIGINS', { infer: true })));
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableShutdownHooks();
 

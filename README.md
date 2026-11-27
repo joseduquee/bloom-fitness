@@ -54,6 +54,11 @@ El `seed` carga un catálogo de 34 ejercicios sin GIF, tres plantillas (días A,
 `cliente@bloom.test` y tres sesiones en los próximos días si la agenda está vacía. Los GIF que se suben desde **Ejercicios** se guardan en
 `apps/api/uploads` (fuera del repositorio) y el API los sirve en `/media/`. En AWS irían a S3 detrás de CloudFront.
 
+### Medir la latencia del tiempo real
+
+Con el API arrancado: `pnpm --filter @bloom/api latency`. Qué mide y cómo leer el resultado en
+[`docs/metricas/README.md`](docs/metricas/README.md).
+
 ### Importación de socios
 
 Con `MEMBERS_PROVIDER=mock` (valor por defecto), el administrador puede importar socios ficticios desde

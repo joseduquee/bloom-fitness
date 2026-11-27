@@ -14,8 +14,10 @@ import { useSession } from '../../../features/auth/session-store';
 import { exercisesListQuery } from '../../../features/exercises/api';
 import { liveSessionQuery, startPlanQuery, useLiveAction } from '../../../features/live/api';
 import { AttendeeCard } from '../../../features/live/attendee-card';
+import { ConnectionBadge } from '../../../features/live/connection-badge';
 import { SessionSummary } from '../../../features/live/session-summary';
 import { StartPlanner } from '../../../features/live/start-planner';
+import { useLiveSocket } from '../../../features/live/use-live-socket';
 import { fullName } from '../../../features/sessions/people';
 import { templatesListQuery } from '../../../features/templates/api';
 import { errorMessage } from '../../../lib/api';
@@ -34,6 +36,8 @@ function LiveSessionPage() {
   const templates = useQuery(templatesListQuery({ pageSize: 200 }));
   const catalog = useQuery(exercisesListQuery({ pageSize: 200 }));
   const canManage = !!session && (me?.role === Role.ADMIN || session.trainer.id === me?.id);
+  // El canal en tiempo real solo hace falta mientras la sesión está en curso (AC-004-15).
+  const connection = useLiveSocket(sessionId, session?.status === 'IN_PROGRESS');
 
   const start = session && utcToMadrid(session.startsAt);
   const title = start ? `Sesión de las ${start.time}` : 'Sesión';
@@ -57,6 +61,7 @@ function LiveSessionPage() {
             <Badge tone={session.status === 'IN_PROGRESS' ? 'success' : 'neutral'}>
               {sessionStatusLabels[session.status]}
             </Badge>
+            {session.status === 'IN_PROGRESS' && <ConnectionBadge state={connection} />}
           </span>
         ) : undefined
       }
